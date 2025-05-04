@@ -7,8 +7,12 @@ __pycache__/
 # C extensions
 *.so
 
-data/
-artefacts/
+# large files
+*.parquet
+*.pkl
+*.csv
+*.joblib
+*.dat
 
 # Distribution / packaging
 .Python
