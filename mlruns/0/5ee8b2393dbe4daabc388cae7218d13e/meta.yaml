@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/5ee8b2393dbe4daabc388cae7218d13e/artifacts
+end_time: 1746365430669
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5ee8b2393dbe4daabc388cae7218d13e
+run_name: valuable-eel-793
+run_uuid: 5ee8b2393dbe4daabc388cae7218d13e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365398634
+status: 3
+tags: []
+user_id: kianyewngieng

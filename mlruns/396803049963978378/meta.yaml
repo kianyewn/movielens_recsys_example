@@ -1,0 +1,6 @@
+artifact_location: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/396803049963978378
+creation_time: 1746364569389
+experiment_id: '396803049963978378'
+last_update_time: 1746364569389
+lifecycle_stage: active
+name: LGBMRanker_Optimization

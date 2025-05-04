@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/e09368b16480418fa424dc63cad26de3/artifacts
+end_time: 1746364781901
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e09368b16480418fa424dc63cad26de3
+run_name: beautiful-worm-540
+run_uuid: e09368b16480418fa424dc63cad26de3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364759503
+status: 3
+tags: []
+user_id: kianyewngieng

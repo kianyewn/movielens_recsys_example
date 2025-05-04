@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/0a74c065b08842a2b8da983170308904/artifacts
+end_time: 1746365062059
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0a74c065b08842a2b8da983170308904
+run_name: righteous-frog-808
+run_uuid: 0a74c065b08842a2b8da983170308904
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365031704
+status: 3
+tags: []
+user_id: kianyewngieng

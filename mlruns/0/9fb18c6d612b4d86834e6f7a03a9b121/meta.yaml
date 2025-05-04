@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/9fb18c6d612b4d86834e6f7a03a9b121/artifacts
+end_time: 1746365155267
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9fb18c6d612b4d86834e6f7a03a9b121
+run_name: rambunctious-pug-284
+run_uuid: 9fb18c6d612b4d86834e6f7a03a9b121
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365117601
+status: 3
+tags: []
+user_id: kianyewngieng

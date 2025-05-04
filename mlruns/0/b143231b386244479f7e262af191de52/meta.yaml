@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/b143231b386244479f7e262af191de52/artifacts
+end_time: 1746364973076
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b143231b386244479f7e262af191de52
+run_name: stately-tern-439
+run_uuid: b143231b386244479f7e262af191de52
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364948015
+status: 3
+tags: []
+user_id: kianyewngieng

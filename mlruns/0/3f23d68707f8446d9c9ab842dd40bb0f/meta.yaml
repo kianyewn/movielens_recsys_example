@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/3f23d68707f8446d9c9ab842dd40bb0f/artifacts
+end_time: 1746364925057
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 3f23d68707f8446d9c9ab842dd40bb0f
+run_name: kindly-zebra-366
+run_uuid: 3f23d68707f8446d9c9ab842dd40bb0f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364903357
+status: 3
+tags: []
+user_id: kianyewngieng

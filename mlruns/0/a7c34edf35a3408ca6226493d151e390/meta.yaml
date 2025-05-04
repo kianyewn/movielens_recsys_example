@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/a7c34edf35a3408ca6226493d151e390/artifacts
+end_time: 1746365241596
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a7c34edf35a3408ca6226493d151e390
+run_name: bemused-pug-759
+run_uuid: a7c34edf35a3408ca6226493d151e390
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365203806
+status: 3
+tags: []
+user_id: kianyewngieng

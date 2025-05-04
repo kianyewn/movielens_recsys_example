@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/a087e16bc4bb4dc0802397cd4c0c76a8/artifacts
+end_time: 1746365203802
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a087e16bc4bb4dc0802397cd4c0c76a8
+run_name: delightful-croc-899
+run_uuid: a087e16bc4bb4dc0802397cd4c0c76a8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365181285
+status: 3
+tags: []
+user_id: kianyewngieng

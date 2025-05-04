@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/cff8964278824f549550c931b8910304/artifacts
+end_time: 1746364948011
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: cff8964278824f549550c931b8910304
+run_name: luxuriant-bat-767
+run_uuid: cff8964278824f549550c931b8910304
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364925059
+status: 3
+tags: []
+user_id: kianyewngieng

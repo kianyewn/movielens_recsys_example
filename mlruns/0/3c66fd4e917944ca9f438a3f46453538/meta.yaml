@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/3c66fd4e917944ca9f438a3f46453538/artifacts
+end_time: 1746365337645
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 3c66fd4e917944ca9f438a3f46453538
+run_name: big-roo-575
+run_uuid: 3c66fd4e917944ca9f438a3f46453538
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365306973
+status: 3
+tags: []
+user_id: kianyewngieng

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/4f840cdfee444f34bf1365f6b3a625c4/artifacts
+end_time: 1746365181280
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 4f840cdfee444f34bf1365f6b3a625c4
+run_name: unequaled-sow-634
+run_uuid: 4f840cdfee444f34bf1365f6b3a625c4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365155271
+status: 3
+tags: []
+user_id: kianyewngieng

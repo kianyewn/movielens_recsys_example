@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/169ba245cd5f4c07814307dce0d93e19/artifacts
+end_time: 1746365002615
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 169ba245cd5f4c07814307dce0d93e19
+run_name: capricious-sow-413
+run_uuid: 169ba245cd5f4c07814307dce0d93e19
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364973081
+status: 3
+tags: []
+user_id: kianyewngieng

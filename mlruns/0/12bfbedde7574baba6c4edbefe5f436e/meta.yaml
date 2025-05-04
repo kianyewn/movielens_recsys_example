@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/12bfbedde7574baba6c4edbefe5f436e/artifacts
+end_time: 1746365306969
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 12bfbedde7574baba6c4edbefe5f436e
+run_name: bustling-bug-658
+run_uuid: 12bfbedde7574baba6c4edbefe5f436e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365276177
+status: 3
+tags: []
+user_id: kianyewngieng

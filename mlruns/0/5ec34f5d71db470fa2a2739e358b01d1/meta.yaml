@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/5ec34f5d71db470fa2a2739e358b01d1/artifacts
+end_time: 1746365117597
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5ec34f5d71db470fa2a2739e358b01d1
+run_name: legendary-elk-223
+run_uuid: 5ec34f5d71db470fa2a2739e358b01d1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365094384
+status: 3
+tags: []
+user_id: kianyewngieng

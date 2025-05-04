@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/f980412e60504966a8238c3ad680ad22/artifacts
+end_time: 1746365276173
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f980412e60504966a8238c3ad680ad22
+run_name: bustling-auk-3
+run_uuid: f980412e60504966a8238c3ad680ad22
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365241600
+status: 3
+tags: []
+user_id: kianyewngieng

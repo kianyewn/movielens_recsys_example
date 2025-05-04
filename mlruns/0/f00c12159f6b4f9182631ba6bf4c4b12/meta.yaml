@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/f00c12159f6b4f9182631ba6bf4c4b12/artifacts
+end_time: 1746365094380
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f00c12159f6b4f9182631ba6bf4c4b12
+run_name: wistful-grouse-549
+run_uuid: f00c12159f6b4f9182631ba6bf4c4b12
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365062063
+status: 3
+tags: []
+user_id: kianyewngieng

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/0/e258f0c253174585ab1e7f9a9e59e10c/artifacts
+end_time: 1746365465336
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e258f0c253174585ab1e7f9a9e59e10c
+run_name: peaceful-stag-388
+run_uuid: e258f0c253174585ab1e7f9a9e59e10c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746365430673
+status: 3
+tags: []
+user_id: kianyewngieng

@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+notebooks/
+data/
+artefacts/
+
 # Distribution / packaging
 .Python
 build/

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/kianyewngieng/github_projects/movielens_recsys_example/mlruns/396803049963978378/f11f103cc23242c89c1327e43f387767/artifacts
+end_time: 1746364691337
+entry_point_name: ''
+experiment_id: '396803049963978378'
+lifecycle_stage: active
+run_id: f11f103cc23242c89c1327e43f387767
+run_name: LGBMRanker_Optimization
+run_uuid: f11f103cc23242c89c1327e43f387767
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746364636682
+status: 4
+tags: []
+user_id: kianyewngieng
