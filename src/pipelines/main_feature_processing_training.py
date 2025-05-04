@@ -1,5 +1,5 @@
 from configs.data_config import DataConfig
-from configs.model_config import ModelConfig
+from configs.processing_config import DataProcessingConfig
 import pandas as pd
 from src.feature_processing.process_features import ProcessFeatures
 
@@ -7,7 +7,7 @@ from src.feature_processing.process_features import ProcessFeatures
 if __name__ == "__main__":
     # load config
     data_config = DataConfig()
-    model_config = ModelConfig()
+    processing_config = DataProcessingConfig()
 
     # load data
     users = pd.read_parquet(data_config.processed_users.file_path)
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     ratings = pd.read_parquet(data_config.processed_ratings.file_path)
 
     # feature process data
-    pf_object = ProcessFeatures(users, movies, ratings, model_config)
+    pf_object = ProcessFeatures(users, movies, ratings, processing_config)
     pf_object.process_for_training()
 
     # save processed data

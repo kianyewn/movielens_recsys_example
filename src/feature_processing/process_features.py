@@ -1,7 +1,7 @@
 import pandas as pd
 from loguru import logger
 
-from configs.model_config import ModelConfig
+from configs.processing_config import DataProcessingConfig
 from src.feature_processing.encoders import CategoricalEncoder, NumericalEncoder
 from src.utils.utils import timeit, value_counts
 
@@ -12,12 +12,12 @@ class ProcessFeatures:
         users: pd.DataFrame,
         movies: pd.DataFrame,
         ratings: pd.DataFrame,
-        model_config: ModelConfig,
+        processing_config: DataProcessingConfig,
     ):
         self.users = users
         self.movies = movies
         self.ratings = ratings
-        self.model_config = model_config
+        self.processing_config = processing_config
         self.u2id = None
         self.id2u = None
         self.m2id = None
@@ -32,8 +32,8 @@ class ProcessFeatures:
 
     def combine_features(self):
         logger.info("Combining features to Ratings")
-        users_feat = self.users[self.model_config.model_user_features]
-        movies_feat = self.movies[self.model_config.model_movie_features]
+        users_feat = self.users[self.processing_config.model_user_features]
+        movies_feat = self.movies[self.processing_config.model_movie_features]
 
         master_data = self.ratings.merge(users_feat, on="user_id", how="left").merge(
             movies_feat, on="movie_id", how="left"
@@ -60,7 +60,7 @@ class ProcessFeatures:
         return self
 
     def get_inference_scoring_data(self):
-        top_k = self.model_config.inference_retrieved_top_k_popular_movies
+        top_k = self.processing_config.inference_retrieved_top_k_popular_movies
         top_100_popular_movies = pd.DataFrame(
             self.movies["movie_id"].value_counts().index[:top_k], columns=["movie_id"]
         )
@@ -78,8 +78,8 @@ class ProcessFeatures:
         )
         inference_data = inference_data.drop(columns=["dummy_col"], axis=1)
 
-        users_feat = self.users[self.model_config.model_user_features]
-        movies_feat = self.movies[self.model_config.model_movie_features]
+        users_feat = self.users[self.processing_config.model_user_features]
+        movies_feat = self.movies[self.processing_config.model_movie_features]
         inference_data = inference_data.merge(
             users_feat, on="user_id", how="left"
         ).merge(movies_feat, on="movie_id", how="left")
@@ -94,8 +94,8 @@ class ProcessFeatures:
             val["user_id"]
             .drop_duplicates()
             .sample(
-                self.model_config.n_test_users,
-                random_state=self.model_config.random_state,
+                self.processing_config.n_test_users,
+                random_state=self.processing_config.random_state,
             )
         )
         test = val[val["user_id"].isin(test_users)].reset_index(drop=True)
@@ -113,8 +113,8 @@ class ProcessFeatures:
     def numerical_feature_processing_for_training(self):
         logger.info("Processing numerical features")
         self.numerical_encoder = NumericalEncoder(
-            self.model_config.model_user_numerical_features
-            + self.model_config.model_movie_numerical_features
+            self.processing_config.model_user_numerical_features
+            + self.processing_config.model_movie_numerical_features
         )
         self.numerical_encoder.fit(self.train_data)
         self.train_data = self.numerical_encoder.transform(self.train_data)
@@ -126,8 +126,8 @@ class ProcessFeatures:
     def categorical_feature_processing_for_training(self):
         logger.info("Processing categorical features")
         self.categorical_encoder = CategoricalEncoder(
-            self.model_config.model_user_categorical_features
-            + self.model_config.model_movie_categorical_features
+            self.processing_config.model_user_categorical_features
+            + self.processing_config.model_movie_categorical_features
         )
 
         self.categorical_encoder.fit(self.train_data)
@@ -168,7 +168,7 @@ class ProcessFeatures:
         from joblib import dump
 
         attributes_to_save = {
-            "model_config": self.model_config,
+            "model_config": self.processing_config,
             "u2id": self.u2id,
             "id2u": self.id2u,
             "m2id": self.m2id,
@@ -180,14 +180,16 @@ class ProcessFeatures:
             "numerical_encoder": self.numerical_encoder,
             "categorical_encoder": self.categorical_encoder,
         }
-        dump(attributes_to_save, self.model_config.process_features_object_path)
+        dump(attributes_to_save, self.processing_config.process_features_object_path)
 
     def load(self):
         from joblib import load
 
-        attributes_loaded = load(self.model_config.process_features_object_path)
+        attributes_loaded = load(self.processing_config.process_features_object_path)
 
-        self.model_config = self.model_config.update(attributes_loaded["model_config"])
+        self.processing_config = self.processing_config.update(
+            attributes_loaded["model_config"]
+        )
         self.u2id = attributes_loaded["u2id"]
         self.id2u = attributes_loaded["id2u"]
         self.m2id = attributes_loaded["m2id"]

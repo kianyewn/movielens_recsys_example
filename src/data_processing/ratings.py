@@ -2,14 +2,16 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from configs.model_config import ModelConfig
+from configs.processing_config import DataProcessingConfig
 from src.utils.utils import timeit
 
 
 class ProcessRatings:
-    def __init__(self, ratings_df: pd.DataFrame, model_config: ModelConfig):
+    def __init__(
+        self, ratings_df: pd.DataFrame, processing_config: DataProcessingConfig
+    ):
         self.ratings_df = ratings_df
-        self.model_config = model_config
+        self.processing_config = processing_config
         self.label_counts = None
         self.output = None
 
@@ -44,7 +46,7 @@ class ProcessRatings:
         self.ratings_df["negative_samples"] = self.ratings_df["user_id"].apply(
             lambda x: np.random.choice(
                 user_neg_interactions[x],
-                size=self.model_config.num_negative_samples,
+                size=self.processing_config.num_negative_samples,
                 replace=False,
             )
         )

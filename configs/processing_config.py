@@ -1,4 +1,4 @@
-class ModelConfig:
+class DataProcessingConfig:
     def __init__(self):
         self.num_negative_samples = 5
         self.data_user_features = ["user_id", "gender", "age", "occupation", "zip"]
@@ -22,26 +22,6 @@ class ModelConfig:
         # sample for test
         self.n_test_users = 100
         self.random_state = 42
-
-        self.label_column = "label"
-        self.qid_column = "qid"
-
-        # self.eval_metrics = ['ndcg@2','ndcg@3','ndcg@4','ndcg@5']
-        # self.eval_metrics = ['map@2','map@3','map@4','map@5']
-        self.eval_metrics = "map"
-
-        # Model Config
-        self.mlflow_experiment_name = "LGBMRanker_Optimization"
-        self.mlflow_run_name = "LGBMRanker_Tuning"
-        self.n_trials = 5
-        self.optuna_direction = "maximize"
-        self.optuna_mode = "sampler"  #  "n_trials"
-        self.optuna_duration = 30
-
-        self.n_estimators = 200
-        self.early_stopping_rounds = 100
-        self.random_state = 42
-        self.verbose = -1
 
         # Modelling Artefacts
         self.process_features_object_path = (

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from configs.data_config import InferenceDataConfig
-from configs.model_config import ModelConfig
+from configs.processing_config import DataProcessingConfig
 from src.data_processing.movies import ProcessMovies
 from src.data_processing.ratings import ProcessRatings
 from src.data_processing.users import ProcessUsers
@@ -9,7 +9,7 @@ from src.data_processing.users import ProcessUsers
 if __name__ == "__main__":
     # load config
     data_config = InferenceDataConfig()
-    model_config = ModelConfig()
+    processing_config = DataProcessingConfig()
 
     # load data
     users = pd.read_csv(
@@ -23,9 +23,9 @@ if __name__ == "__main__":
     )
 
     # process data
-    process_users = ProcessUsers(users, model_config)
-    process_movies = ProcessMovies(movies, model_config)
-    process_ratings = ProcessRatings(ratings, model_config)
+    process_users = ProcessUsers(users, processing_config)
+    process_movies = ProcessMovies(movies, processing_config)
+    process_ratings = ProcessRatings(ratings, processing_config)
 
     process_users.process_for_inference()
     process_movies.process_for_inference()
