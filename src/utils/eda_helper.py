@@ -4,17 +4,23 @@ import pandas as pd
 from scipy.stats import entropy
 
 
-def value_counts(df, column):
+def value_counts(df, column, sort_by='count'):
     val_cnt = df[column].value_counts(dropna=False).rename("count")
     val_perc = (
         df[column].value_counts(dropna=False, normalize=True).rename("proportion")
     )
+    if np.nan not in val_cnt.index:
+        val_cnt = pd.concat([val_cnt, pd.Series([0], index=['missing'])]).rename('count')
+
+    if np.nan not in val_perc.index:
+        val_perc = pd.concat([val_perc, pd.Series([0], index=['missing'])]).rename('proportion')
+
     margin = [df.shape[0], 1]
     vc_table = pd.concat([val_cnt, val_perc], axis=1)
     vc_table.loc["total"] = margin
-    vc_table = vc_table.reset_index(names="bin")
+    vc_table = vc_table.reset_index(names="value")
     vc_table["var"] = column
-    vc_table = vc_table[["var", "bin", "count", "proportion"]]
+    vc_table = vc_table[["var", "value", "count", "proportion"]]# .sort_values(by=sort_by, ascending=False)
     return vc_table
 
 
@@ -38,12 +44,16 @@ def default_bin_value_counts_categorical_feature(val, feature, top_k=10):
     )
 
 
-def default_bin_numeric_feature(df, feature, bins=10, retbins=False):
-    df_feat_binned, breaks = pd.qcut(
-        df[feature], q=bins, retbins=True, duplicates="drop"
-    )
-    breaks = [-np.inf] + breaks.tolist() + [np.inf]
-    df_feat_binned = pd.cut(df[feature], bins=breaks, duplicates="drop", include_lowest=True)
+def default_bin_numeric_feature(df, feature, bins=10, retbins=False, equal_width=False):
+    if equal_width:
+        df_feat_binned, breaks = pd.cut(df[feature], bins=bins, duplicates="drop", include_lowest=True)
+    else:
+        df_feat_binned, breaks = pd.qcut(
+            df[feature], q=bins, retbins=True, duplicates="drop"
+        )
+        breaks = [-np.inf] + breaks.tolist() + [np.inf]
+        df_feat_binned = pd.cut(df[feature], bins=breaks, duplicates="drop", include_lowest=True)
+
     if len(df_feat_binned) == 1: # change to equal width if quantile bins failed
         min_val = df[feature].quantile(0.05)
         max_val = df[feature].quantile(0.95)
@@ -51,7 +61,7 @@ def default_bin_numeric_feature(df, feature, bins=10, retbins=False):
         df_feat_binned = pd.cut(df[feature], bins=breaks, duplicates="drop", include_lowest=True)
     if retbins:
         return df_feat_binned, breaks
-    return df_feat_binned
+    return df_feat_binned.astype(str)
 
 
 def default_bin_categorical_feature(df, feature, bins=10, retbins=False):
