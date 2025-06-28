@@ -4,6 +4,20 @@ import pandas as pd
 from scipy.stats import entropy
 
 
+def value_counts(df, column):
+    val_cnt = df[column].value_counts(dropna=False).rename("count")
+    val_perc = (
+        df[column].value_counts(dropna=False, normalize=True).rename("proportion")
+    )
+    margin = [df.shape[0], 1]
+    vc_table = pd.concat([val_cnt, val_perc], axis=1)
+    vc_table.loc["total"] = margin
+    vc_table = vc_table.reset_index(names="bin")
+    vc_table["var"] = column
+    vc_table = vc_table[["var", "bin", "count", "proportion"]]
+    return vc_table
+
+
 def default_bin_value_counts_categorical_feature(val, feature, top_k=10):
     vc = val[feature].astype(str).value_counts(dropna=False, normalize=True)
     non_null_vc = vc[vc.index != np.nan]
@@ -26,9 +40,15 @@ def default_bin_value_counts_categorical_feature(val, feature, top_k=10):
 
 def default_bin_numeric_feature(df, feature, bins=10, retbins=False):
     df_feat_binned, breaks = pd.qcut(
-        df[feature], q=bins, retbins=retbins, duplicates="drop"
+        df[feature], q=bins, retbins=True, duplicates="drop"
     )
-    breaks = breaks.tolist() + [np.inf]
+    breaks = [-np.inf] + breaks.tolist() + [np.inf]
+    df_feat_binned = pd.cut(df[feature], bins=breaks, duplicates="drop", include_lowest=True)
+    if len(df_feat_binned) == 1: # change to equal width if quantile bins failed
+        min_val = df[feature].quantile(0.05)
+        max_val = df[feature].quantile(0.95)
+        breaks = [-np.inf] + np.linspace(min_val, max_val, bins).tolist() + [np.inf]
+        df_feat_binned = pd.cut(df[feature], bins=breaks, duplicates="drop", include_lowest=True)
     if retbins:
         return df_feat_binned, breaks
     return df_feat_binned
@@ -38,7 +58,7 @@ def default_bin_categorical_feature(df, feature, bins=10, retbins=False):
     vc = df[feature].astype(str).value_counts()
     non_top_k_cols = vc.index[bins:]
     mapping = {col: "Others" if col in non_top_k_cols else col for col in vc.index}
-    df_feat_binned = df[feature].map(mapping).astype(str)
+    df_feat_binned = df[feature].astype(str).map(mapping).fillna('missing')
 
     breaks = df_feat_binned.unique().tolist()
     if retbins:
@@ -117,31 +137,36 @@ def compare_distributions(train_df, test_df, val_df, feature, bins=10, figsize=(
     # Handle numerical features
     if pd.api.types.is_numeric_dtype(train_df[feature]):
         # Create bins based on training data
-        train_feat_binned, train_bins = pd.qcut(
-            train_df[feature], q=bins, retbins=True, duplicates="drop"
-        )
-        train_bins = train_bins.tolist() + [np.inf]
+        # train_feat_binned, train_bins = pd.qcut(
+        #     train_df[feature], q=bins, retbins=True, duplicates="drop"
+        # )
+        # train_bins = train_bins.tolist() + [np.inf]
+        train_feat_binned, train_bins = default_bin_numeric_feature(train_df, feature, bins=bins, retbins=True)
         test_feat_binned = pd.cut(
             test_df[feature], bins=train_bins, include_lowest=True
         )
         val_feat_binned = pd.cut(val_df[feature], bins=train_bins, include_lowest=True)
 
+        train_counts = train_feat_binned.value_counts(dropna=False, normalize=True).sort_index()
+        test_counts = test_feat_binned.value_counts(dropna=False, normalize=True).sort_index()
+        val_counts = val_feat_binned.value_counts(dropna=False, normalize=True).sort_index()
+        
         # Get value counts
-        train_counts = (
-            train_feat_binned.astype(str)
-            .value_counts(dropna=False, normalize=True)
-            .sort_index()
-        )
-        test_counts = (
-            test_feat_binned.astype(str)
-            .value_counts(dropna=False, normalize=True)
-            .sort_index()
-        )
-        val_counts = (
-            val_feat_binned.astype(str)
-            .value_counts(dropna=False, normalize=True)
-            .sort_index()
-        )
+        # train_counts = (
+        #     train_feat_binned.astype(str)
+        #     .value_counts(dropna=False, normalize=True)
+        #     .sort_index()
+        # )
+        # test_counts = (
+        #     test_feat_binned.astype(str)
+        #     .value_counts(dropna=False, normalize=True)
+        #     .sort_index()
+        # )
+        # val_counts = (
+        #     val_feat_binned.astype(str)
+        #     .value_counts(dropna=False, normalize=True)
+        #     .sort_index()
+        # )
     else:
         # For categorical features
         # train_counts = (
@@ -172,14 +197,13 @@ def compare_distributions(train_df, test_df, val_df, feature, bins=10, figsize=(
         val_counts = default_bin_value_counts_categorical_feature(
             val_df, feature, top_k=bins
         )
-        print("hi")
-        # Ensure all have the same categories
-        all_cats = sorted(
-            set(train_counts.index) | set(test_counts.index) | set(val_counts.index)
-        )
-        train_counts = train_counts.reindex(all_cats, fill_value=0)
-        test_counts = test_counts.reindex(all_cats, fill_value=0)
-        val_counts = val_counts.reindex(all_cats, fill_value=0)
+    # Ensure all have the same categories
+    all_cats = sorted(
+        set(train_counts.index) | set(test_counts.index) | set(val_counts.index)
+    )
+    train_counts = train_counts.reindex(all_cats, fill_value=0).sort_index()
+    test_counts = test_counts.reindex(all_cats, fill_value=0).sort_index()
+    val_counts = val_counts.reindex(all_cats, fill_value=0).sort_index()
 
     # Set width of bars
     bar_width = 0.25
@@ -659,7 +683,9 @@ def analyze_numeric_feature_with_target(df, feature, target, bins=10, figsize=(1
     return fig
 
 
-def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=(15, 6)):
+def analyze_numeric_feature_with_targets(
+    df, feature, targets, bins=10, figsize=(15, 6)
+):
     """
     Analyze a numerical feature with histogram and multiple target distributions.
     Each target gets its own y-axis to handle different scales.
@@ -671,15 +697,19 @@ def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=
     ax1 = fig.add_subplot(gs[0])
     twin_axes = [ax1.twinx()]  # Create first secondary y-axis
     if len(targets) > 1:
-        for i in range(len(targets) - 1):   
+        for i in range(len(targets) - 1):
             twin_axes.append(ax1.twinx())  # Create second secondary y-axis if needed
             # Offset the second axis further right
             # twin_axes[i+1].spines['right'].set_position(('outward', 60))
             # Move the ticks and labels to the right for better separation
-            twin_axes[i+1].tick_params(axis='y', pad=(i+1) * 30)  # Add padding between ticks and labels
-            # print('hello') 
+            twin_axes[i + 1].tick_params(
+                axis="y", pad=(i + 1) * 30
+            )  # Add padding between ticks and labels
+            # print('hello')
     # Get binned data and calculate target means per bin
-    binned_data, bin_edges = default_bin_numeric_feature(df, feature, bins=bins, retbins=True)
+    binned_data, bin_edges = default_bin_numeric_feature(
+        df, feature, bins=bins, retbins=True
+    )
     value_counts = binned_data.value_counts(dropna=False).sort_index()
     percentages = value_counts / len(binned_data)
 
@@ -692,24 +722,26 @@ def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=
     # Colors for different targets
     # Colors and styles for different targets
     colors = [
-        'goldenrod',      # Warm yellow/gold - keep as requested
-        'C5',
-        '#2ca02c',       # Warm green that matches well with goldenrod
-        '#2ecc71',      # Emerald green
-        '#2E8B57',       # Sea green - softer than forestgreen
-        '#E9967A',    # Dark salmon
-        '#00B294',    # Teal
-        '#4682B4',       # Steel blue - more professional than plain blue
-        '#CD5C5C',       # Indian red - softer than brown
-        '#4B0082',       # Indigo - more distinctive than purple
+        "goldenrod",  # Warm yellow/gold - keep as requested
+        "C5",
+        "#2ca02c",  # Warm green that matches well with goldenrod
+        "#2ecc71",  # Emerald green
+        "#2E8B57",  # Sea green - softer than forestgreen
+        "#E9967A",  # Dark salmon
+        "#00B294",  # Teal
+        "#4682B4",  # Steel blue - more professional than plain blue
+        "#CD5C5C",  # Indian red - softer than brown
+        "#4B0082",  # Indigo - more distinctive than purple
     ]
-    styles = ['-', '--', ':', '-.', '-']
+    styles = ["-", "--", ":", "-.", "-"]
     lines = []
 
     # Plot target means lines
     for idx, (target, twin_ax) in enumerate(zip(targets, twin_axes)):
         # Calculate mean target value for each bin
-        target_means = df.groupby(binned_data, dropna=False, observed=True)[target].mean()
+        target_means = df.groupby(binned_data, dropna=False, observed=True)[
+            target
+        ].mean()
         target_means = target_means.reindex(value_counts.index)
 
         # print('hello')
@@ -732,7 +764,7 @@ def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=
         # Adjust tick label format to be more compact
         twin_ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f"{x:.2f}"))
         twin_ax.grid(False)
-    twin_axes[-1].set_ylabel("Mean", labelpad=0, color=colors[0]) 
+    twin_axes[-1].set_ylabel("Mean", labelpad=0, color=colors[0])
     # Add percentage labels on top of each bar
     for i, (count, percentage) in enumerate(zip(bars, percentages)):
         height = count.get_height()
@@ -755,7 +787,12 @@ def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=
     ax1.set_ylabel("Count")
 
     # Add legend for target mean lines
-    ax1.legend(lines, [f"Mean {target}" for target in targets], loc="upper right", bbox_to_anchor=(1.12, 1.12))
+    ax1.legend(
+        lines,
+        [f"Mean {target}" for target in targets],
+        loc="upper right",
+        bbox_to_anchor=(1.12, 1.12),
+    )
 
     # Boxplot subplot
     ax2 = fig.add_subplot(gs[1])
@@ -832,7 +869,9 @@ def analyze_numeric_feature_with_targets(df, feature, targets, bins=10, figsize=
     return fig
 
 
-def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figsize=(15, 6)):
+def analyze_categorical_feature_with_targets(
+    df, feature, targets, bins=10, figsize=(15, 6)
+):
     """
     Analyze a categorical feature with bar plot and multiple target distributions.
     Each target gets its own y-axis to handle different scales.
@@ -844,9 +883,11 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
     ax1 = fig.add_subplot(gs[0])
     twin_axes = [ax1.twinx()]  # Create first secondary y-axis
     if len(targets) > 1:
-        for i in range(len(targets) - 1):   
+        for i in range(len(targets) - 1):
             twin_axes.append(ax1.twinx())  # Create second secondary y-axis if needed
-            twin_axes[i+1].tick_params(axis='y', pad=(i+1) * 30)  # Add padding between ticks and labels
+            twin_axes[i + 1].tick_params(
+                axis="y", pad=(i + 1) * 30
+            )  # Add padding between ticks and labels
 
     # Get binned data and value counts
     binned_data = default_bin_categorical_feature(df, feature, bins=bins)
@@ -862,22 +903,24 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
 
     # Colors and styles for different targets
     colors = [
-        'goldenrod',      # Warm yellow/gold
-        'C5',            # Matplotlib cycle color 5
-        '#2ca02c',       # Warm green
-        '#2ecc71',       # Emerald green
-        '#2E8B57',       # Sea green
-        '#E9967A',       # Dark salmon
-        '#00B294',       # Teal
-        '#4682B4',       # Steel blue
+        "goldenrod",  # Warm yellow/gold
+        "C5",  # Matplotlib cycle color 5
+        "#2ca02c",  # Warm green
+        "#2ecc71",  # Emerald green
+        "#2E8B57",  # Sea green
+        "#E9967A",  # Dark salmon
+        "#00B294",  # Teal
+        "#4682B4",  # Steel blue
     ]
-    styles = ['-', '--', ':', '-.', '-']
+    styles = ["-", "--", ":", "-.", "-"]
     lines = []
 
     # Plot target means lines
     for idx, (target, twin_ax) in enumerate(zip(targets, twin_axes)):
         # Calculate mean target value for each category
-        target_means = df.groupby(binned_data, dropna=False, observed=True)[target].mean()
+        target_means = df.groupby(binned_data, dropna=False, observed=True)[
+            target
+        ].mean()
         target_means = target_means.reindex(value_counts.index)
 
         # Plot line
@@ -896,7 +939,7 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
         twin_ax.tick_params(axis="y", labelcolor=colors[idx])
         twin_ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f"{x:.2f}"))
         twin_ax.grid(False)
-    
+
     twin_axes[-1].set_ylabel("Mean", labelpad=0, color=colors[0])
 
     # Add percentage labels on top of each bar
@@ -919,7 +962,12 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
     ax1.set_ylabel("Count")
 
     # Add legend for target mean lines
-    ax1.legend(lines, [f"Mean {target}" for target in targets], loc="upper right", bbox_to_anchor=(1.12, 1.12))
+    ax1.legend(
+        lines,
+        [f"Mean {target}" for target in targets],
+        loc="upper right",
+        bbox_to_anchor=(1.12, 1.12),
+    )
 
     # Statistics subplot
     ax2 = fig.add_subplot(gs[1])
@@ -945,19 +993,17 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
         f"Missing: {stats['Missing']:,}\n"
     )
 
-        # Add top 3 categories
+    # Add top 3 categories
     stats_text += "\nTop 3 Categories:\n"
     top_vcs = value_counts.sort_values(ascending=False).head(3)
     for cat, count in top_vcs.items():
         stats_text += f"{cat}: {count:,} ({count/len(df)*100:.1f}%)\n"
-        
+
     # Add target statistics to text
     for target in targets:
         stats_text += f"\n{target}:\n"
         stats_text += f"Mean: {stats[f'{target}_Mean']:.2f}\n"
         stats_text += f"Std: {stats[f'{target}_Std']:.2f}"
-
-
 
     ax2.text(
         0.5,
@@ -965,11 +1011,17 @@ def analyze_categorical_feature_with_targets(df, feature, targets, bins=10, figs
         stats_text,
         transform=ax2.transAxes,
         fontfamily="monospace",
-        bbox=dict(boxstyle="round", facecolor="whitesmoke", alpha=0.8, linewidth=0.5, edgecolor='darkgrey'),
+        bbox=dict(
+            boxstyle="round",
+            facecolor="whitesmoke",
+            alpha=0.8,
+            linewidth=0.5,
+            edgecolor="darkgrey",
+        ),
         verticalalignment="top",
         horizontalalignment="center",
     )
-    ax2.axis('off')
+    ax2.axis("off")
 
     plt.subplots_adjust(wspace=0.3)  # Increase space between subplots
     return fig
