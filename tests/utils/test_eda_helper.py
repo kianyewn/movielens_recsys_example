@@ -80,19 +80,19 @@ def test_plotting_utils(users_df, test):
     assert True
 
 
-# def test_compare_distributions(train, val, test):
-#     fig, (psi_train_test, psi_train_val, psi_val_test) = compare_distributions(
-#         train, val, test, "age"
-#     )
-#     assert isinstance(psi_train_test, float)
-#     assert isinstance(psi_train_val, float)
-#     assert isinstance(psi_val_test, float)
+def test_compare_distributions(train, val, test):
+    fig, (psi_train_test, psi_train_val, psi_val_test) = compare_distributions(
+        train, val, test, "age"
+    )
+    assert isinstance(psi_train_test, float)
+    assert isinstance(psi_train_val, float)
+    assert isinstance(psi_val_test, float)
 
 
-# def test_compare_distributions_kl_divergence(train, val, test):
-#     fig, (kl_train_test, kl_train_val, kl_val_test) = (
-#         compare_distributions_kl_divergence(train, val, test, "age")
-#     )
-#     assert isinstance(kl_train_test, float)
-#     assert isinstance(kl_train_val, float)
-#     assert isinstance(kl_val_test, float)
+def test_compare_distributions_kl_divergence(train, val, test):
+    fig, (kl_train_test, kl_train_val, kl_val_test) = (
+        compare_distributions_kl_divergence(train, val, test, "age")
+    )
+    assert isinstance(kl_train_test, float)
+    assert isinstance(kl_train_val, float)
+    assert isinstance(kl_val_test, float)
