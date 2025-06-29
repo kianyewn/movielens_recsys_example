@@ -1014,6 +1014,151 @@ def analyze_categorical_feature(df, feature, bins=10, figsize=(15, 6), title="")
     return fig
 
 
+def analyze_categorical_feature_with_target(
+    df, feature, target, bins=10, figsize=(15, 6)
+):
+    """
+    Analyze a categorical feature with bar plot and multiple target distributions.
+    Each target gets its own y-axis to handle different scales.
+    """
+    fig = plt.figure(figsize=figsize)
+    gs = fig.add_gridspec(1, 2, width_ratios=[6, 1], wspace=0.25)
+
+    # Bar plot subplot with target averages
+    ax1 = fig.add_subplot(gs[0])
+    twin_axes = [ax1.twinx()]  # Create first secondary y-axis
+
+    # Get binned data and value counts
+    binned_data = default_bin_categorical_feature(df, feature, bins=bins)
+    value_counts = binned_data.value_counts(dropna=False).sort_values(ascending=False)
+    value_counts = value_counts.sort_index()
+    percentages = value_counts / len(binned_data)
+
+    # Create bars for the histogram
+    bar_positions = range(len(value_counts))
+    bars = ax1.bar(
+        bar_positions, value_counts.values, edgecolor="black", alpha=0.7, width=0.8
+    )
+
+    # Colors and styles for different targets
+    colors = [
+        "goldenrod",  # Warm yellow/gold
+        "C5",  # Matplotlib cycle color 5
+        "#2ca02c",  # Warm green
+        "#2ecc71",  # Emerald green
+        "#2E8B57",  # Sea green
+        "#E9967A",  # Dark salmon
+        "#00B294",  # Teal
+        "#4682B4",  # Steel blue
+    ]
+    styles = ["-", "--", ":", "-.", "-"]
+    lines = []
+
+    # Plot target means lines
+    idx = 0
+    twin_ax = twin_axes[0]
+    # Calculate mean target value for each category
+    target_means = df.groupby(binned_data, dropna=False, observed=True)[target].mean()
+    target_means = target_means.reindex(value_counts.index)
+
+    # Plot line
+    line = twin_ax.plot(
+        bar_positions,
+        target_means.values,
+        color=colors[idx],
+        linewidth=2,
+        marker="o" if idx == 0 else None,
+        label=f"Mean {target}",
+        linestyle=styles[idx % len(styles)],
+    )[0]
+    lines.append(line)
+
+    # Set axis formatting
+    twin_ax.tick_params(axis="y", labelcolor=colors[idx])
+    twin_ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f"{x:.2f}"))
+    twin_ax.grid(False)
+
+    twin_axes[-1].set_ylabel("Mean", labelpad=0, color=colors[0])
+
+    # Add percentage labels on top of each bar
+    for i, (count, percentage) in enumerate(zip(bars, percentages)):
+        height = count.get_height()
+        ax1.text(
+            count.get_x() + count.get_width() / 2,
+            height,
+            f"{percentage * 100:.1f}%",
+            ha="center",
+            va="bottom",
+        )
+
+    # Set x-ticks with category labels
+    ax1.set_xticks(bar_positions)
+    ax1.set_xticklabels(value_counts.index, rotation=45, ha="right")
+
+    ax1.set_title(f"Distribution of {feature} with Target Values")
+    ax1.set_xlabel(feature)
+    ax1.set_ylabel("Count")
+
+    # Add legend for target mean lines
+    ax1.legend(
+        lines,
+        [f"Mean {target}"],
+        loc="upper right",
+        bbox_to_anchor=(1.12, 1.12),
+    )
+
+    # Statistics subplot
+    ax2 = fig.add_subplot(gs[1])
+
+    # Calculate statistics
+    stats = {
+        "Categories": df[feature].nunique(dropna=False),
+        "Total": len(df[feature]),
+        "Missing": df[feature].isna().sum(),
+    }
+
+    # Add target statistics
+    non_null_data = df[~df[feature].isna()]
+    non_null_target = non_null_data[target]
+    stats[f"{target}_Mean"] = non_null_target.mean()
+    stats[f"{target}_Std"] = non_null_target.std()
+
+    # Add descriptive statistics
+    stats_text = f"Categories: {stats['Categories']}\nTotal: {stats['Total']:,}\nMissing: {stats['Missing']:,}\n"
+
+    # Add top 3 categories
+    stats_text += "\nTop 3 Categories:\n"
+    top_vcs = value_counts.sort_values(ascending=False).head(3)
+    for cat, count in top_vcs.items():
+        stats_text += f"{cat}: {count:,} ({count / len(df) * 100:.1f}%)\n"
+
+    # Add target statistics to text
+    stats_text += f"\n{target}:\n"
+    stats_text += f"Mean: {stats[f'{target}_Mean']:.2f}\n"
+    stats_text += f"Std: {stats[f'{target}_Std']:.2f}"
+
+    ax2.text(
+        0.5,
+        1,
+        stats_text,
+        transform=ax2.transAxes,
+        fontfamily="monospace",
+        bbox=dict(
+            boxstyle="round",
+            facecolor="whitesmoke",
+            alpha=0.8,
+            linewidth=0.5,
+            edgecolor="darkgrey",
+        ),
+        verticalalignment="top",
+        horizontalalignment="center",
+    )
+    ax2.axis("off")
+
+    plt.subplots_adjust(wspace=0.3)  # Increase space between subplots
+    return fig
+
+
 def analyze_categorical_feature_with_targets(
     df, feature, targets, bins=10, figsize=(15, 6)
 ):
@@ -1218,20 +1363,17 @@ def get_all_stats(df, feat, label):
         all_data = all_data.drop("target", axis=1)
     return all_data
 
+
 def get_all_stats_wo_label(df, feat):
     all_data_cnt = df[feat].value_counts(dropna=False).sort_index().reset_index()
     all_data_perc = (
         df[feat].value_counts(dropna=False, normalize=True).sort_index().reset_index()
     )
 
-
     all_data_cnt[feat] = all_data_cnt[feat].astype(str)
     all_data_perc[feat] = all_data_perc[feat].astype(str)
 
-    all_data = (
-        all_data_cnt.merge(all_data_perc, on=[feat], how="outer")
-        .fillna(0)
-    )
+    all_data = all_data_cnt.merge(all_data_perc, on=[feat], how="outer").fillna(0)
     all_data.columns = [feat, "count", "proportion"]
     return all_data
 
@@ -1347,9 +1489,8 @@ def eda_numerical(
 
     # calculate stats
     if label is not None:
-        
         all_stats = get_all_stats(df=df_bin, feat=feat, label=label)
-    else: 
+    else:
         all_stats = get_all_stats_wo_label(df=df_bin, feat=feat)
 
     time_stats = get_time_stats(df=df_bin, feat=feat, timecol=timecol)
@@ -1399,10 +1540,11 @@ def eda_numerical(
         xaxis3_title=f"{timecol}",
     )
 
-    fig.show()
+    # fig.show()
+    return fig
 
 
-def eda_categorical(df_raw, feat,timecol,  label=None, height=1000, width=800):
+def eda_categorical(df_raw, feat, timecol, label=None, height=1000, width=800):
     if label == feat:
         df_raw["target"] = df_raw[label].copy()  # copy label column
         label = "target"
@@ -1422,7 +1564,7 @@ def eda_categorical(df_raw, feat,timecol,  label=None, height=1000, width=800):
     # calculate stats
     if label is not None:
         all_stats = get_all_stats(df=df_bin, feat=feat, label=label)
-    else: 
+    else:
         all_stats = get_all_stats_wo_label(df=df_bin, feat=feat)
     time_stats = get_time_stats(df=df_bin, feat=feat, timecol=timecol)
 
@@ -1463,8 +1605,8 @@ def eda_categorical(df_raw, feat,timecol,  label=None, height=1000, width=800):
         xaxis2_title=f"Overall {feat}",
     )
 
-    fig.show()
-    return all_stats
+    # fig.show()
+    return fig, all_stats 
 
 
 def eda_label(df, label, timecol, height=1000, width=800):
@@ -1598,4 +1740,5 @@ def eda_label(df, label, timecol, height=1000, width=800):
         xaxis2_title=f"Overall {label}",
     )
 
-    fig.show()
+    # fig.show()
+    return fig
